@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentine?</title>
+  <style>
+    :root {
+      --bg1: #0b1020;
+      --bg2: #190b2c;
+      --card: rgba(255, 255, 255, 0.08);
+      --stroke: rgba(255, 255, 255, 0.16);
+      --text: rgba(255, 255, 255, 0.92);
+      --muted: rgba(255, 255, 255, 0.72);
+      --pink: #ff4d8d;
+      --pink2: #ff77aa;
+      --green: #34d399;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      overflow: hidden;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(255, 77, 141, 0.25), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(52, 211, 153, 0.18), transparent 55%),
+        radial-gradient(900px 900px at 60% 90%, rgba(168, 85, 247, 0.18), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      display: grid;
+      place-items: center;
+    }
+
+    .card {
+      width: min(720px, 92vw);
+      height: min(520px, 82vh);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+      padding: clamp(18px, 3vw, 28px);
+      backdrop-filter: blur(10px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      user-select: none;
+    }
+
+    .heart {
+      width: 14px; height: 14px;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      transform: rotate(45deg);
+      border-radius: 3px;
+      position: relative;
+      box-shadow: 0 6px 18px rgba(255, 77, 141, 0.35);
+    }
+    .heart:before, .heart:after {
+      content: "";
+      position: absolute;
+      width: 14px; height: 14px;
+      background: inherit;
+      border-radius: 50%;
+      top: -7px; left: 0;
+    }
+    .heart:after { left: -7px; top: 0; }
+
+    h1 {
+      margin: 16px 0 8px;
+      font-size: clamp(28px, 3.6vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: clamp(15px, 2.2vw, 18px);
+      line-height: 1.45;
+    }
+
+    .playground {
+      position: absolute;
+      inset: 0;
+      padding: clamp(18px, 3vw, 28px);
+    }
+
+    .buttonRow {
+      position: absolute;
+      left: 50%;
+      top: 62%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    button {
+      pointer-events: auto;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 14px 18px;
+      transition: transform 220ms ease, filter 220ms ease, box-shadow 220ms ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #yesBtn {
+      position: absolute;
+      left: 46%;
+      top: 56%;
+      transform: translate(-50%, -50%) scale(1);
+      background: linear-gradient(135deg, var(--green), #7cf7c9);
+      color: #06110d;
+      box-shadow: 0 14px 30px rgba(52, 211, 153, 0.22);
+    }
+    #yesBtn:hover { filter: brightness(1.05); transform: translate(-50%, -50%) scale(var(--yesScale)); }
+
+    #noBtn {
+      position: absolute;
+      left: 58%;
+      top: 56%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.2);
+    }
+    #noBtn:hover { filter: brightness(1.08); }
+
+    .footerHint {
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      user-select: none;
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    /* Celebration overlay */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(700px 450px at 50% 40%, rgba(255, 77, 141, 0.25), rgba(0,0,0,0.65));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 280ms ease;
+      text-align: center;
+      padding: 22px;
+    }
+    .overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overlayCard {
+      width: min(560px, 92%);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 22px 80px rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      padding: 22px 18px;
+    }
+    .overlayCard h2 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3.2vw, 34px);
+      letter-spacing: -0.02em;
+    }
+    .overlayCard p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      font-size: clamp(15px, 2.1vw, 18px);
+    }
+
+    canvas#confetti {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="playground" id="playground">
+      <div class="badge"><span class="heart" aria-hidden="true"></span> A tiny question with one correct answer</div>
+
+      <h1>Will you be my Valentine, <span id="name">Marabel</span>?</h1>
+      <p>Choose wisely. (The “No” button is… shy.)</p>
+
+      <div class="buttonRow" id="arena">
+        <button id="yesBtn" type="button">Yes 💖</button>
+        <button id="noBtn" type="button">No 🙃</button>
+      </div>
+
+      <div class="footerHint">Tip: Try hovering “No”… 😄</div>
+    </div>
+
+    <canvas id="confetti"></canvas>
+
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Celebration">
+      <div class="overlayCard">
+        <h2>Yay! 🎉</h2>
+        <p>Congratulations on picking the right and only choice.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Config ======
+    const NAME = "Marabel"; // Change this if you want
+    document.getElementById("name").textContent = NAME;
+
+    const playground = document.getElementById("playground");
+    const arena = document.getElementById("arena");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const overlay = document.getElementById("overlay");
+
+    // Keep a "scale" variable for the Yes button
+    let yesScale = 1.0;
+    setYesScale(yesScale);
+
+    function setYesScale(s) {
+      yesScale = Math.min(s, 3.2);
+      // Store scale for hover state, but also apply immediately:
+      yesBtn.style.setProperty("--yesScale", yesScale.toFixed(2));
+      yesBtn.style.transform = `translate(-50%, -50%) scale(${yesScale.toFixed(2)})`;
+      yesBtn.style.boxShadow = `0 14px 30px rgba(52, 211, 153, ${0.18 + (yesScale-1)*0.08})`;
+    }
+
+    // ====== No button "run away" ======
+    function moveNoButton() {
+      const arenaRect = arena.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const padding = 18;
+
+      // random position inside the card/arena bounds
+      const minX = padding;
+      const minY = padding;
+      const maxX = arenaRect.width - btnRect.width - padding;
+      const maxY = arenaRect.height - btnRect.height - padding;
+
+      const x = Math.max(minX, Math.floor(Math.random() * (maxX - minX + 1)) + minX);
+      const y = Math.max(minY, Math.floor(Math.random() * (maxY - minY + 1)) + minY);
+
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+      noBtn.style.transform = `translate(0, 0)`;
+    }
+
+    function growYes() {
+      // grow in a "stylish" way (ease + slight bounce)
+      setYesScale(yesScale + 0.18);
+
+      yesBtn.animate(
+        [
+          { transform: `translate(-50%, -50%) scale(${(yesScale - 0.08).toFixed(2)})` },
+          { transform: `translate(-50%, -50%) scale(${yesScale.toFixed(2)})` }
+        ],
+        { duration: 180, easing: "cubic-bezier(.2,.9,.2,1)" }
+      );
+    }
+
+    // Desktop hover
+    noBtn.addEventListener("mouseenter", () => {
+      moveNoButton();
+      growYes();
+    });
+
+    // Mobile tap (touchstart) — prevents the "No" from ever being tapped successfully
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveNoButton();
+      growYes();
+    }, { passive: false });
+
+    // Also block clicks (in case someone manages it)
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      moveNoButton();
+      growYes();
+    });
+
+    // ====== Confetti (no external libraries) ======
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(canvas.clientWidth * dpr);
+      canvas.height = Math.floor(canvas.clientHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function launchConfetti(durationMs = 1800) {
+      const W = canvas.clientWidth;
+      const H = canvas.clientHeight;
+
+      const pieces = Array.from({ length: 180 }, () => ({
+        x: rand(0, W),
+        y: rand(-H * 0.2, -20),
+        r: rand(3, 7),
+        vx: rand(-2.2, 2.2),
+        vy: rand(2.5, 6.5),
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-0.18, 0.18),
+        // random bright-ish colors
+        color: `hsl(${Math.floor(rand(0, 360))} 90% 60%)`,
+        shape: Math.random() < 0.5 ? "rect" : "circle"
+      }));
+
+      const start = performance.now();
+
+      function tick(now) {
+        const t = now - start;
+        ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+        for (const p of pieces) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.04; // gravity
+          p.rot += p.vr;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+
+          if (p.shape === "rect") {
+            ctx.fillRect(-p.r, -p.r * 0.6, p.r * 2, p.r * 1.2);
+          } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        if (t < durationMs) requestAnimationFrame(tick);
+        else ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    // ====== Yes click ======
+    yesBtn.addEventListener("click", () => {
+      overlay.classList.add("show");
+      launchConfetti(2200);
+
+      // Disable buttons after yes
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      yesBtn.style.cursor = "default";
+      noBtn.style.cursor = "default";
+    });
+
+    // Initial positioning (so "No" starts where we want)
+    // Convert from percentage to absolute layout for smooth movement:
+    requestAnimationFrame(() => {
+      const arenaRect = arena.getBoundingClientRect();
+      // Place yes/no near center
+      yesBtn.style.left = `${Math.round(arenaRect.width * 0.44)}px`;
+      yesBtn.style.top  = `${Math.round(arenaRect.height * 0.56)}px`;
+      yesBtn.style.transform = `translate(-50%, -50%) scale(${yesScale.toFixed(2)})`;
+
+      noBtn.style.left = `${Math.round(arenaRect.width * 0.58)}px`;
+      noBtn.style.top  = `${Math.round(arenaRect.height * 0.56)}px`;
+      noBtn.style.transform = `translate(-50%, -50%)`;
+    });
+  </script>
+</body>
+</html>
